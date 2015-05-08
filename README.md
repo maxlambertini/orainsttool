@@ -14,6 +14,13 @@ Fill the input boxes with the appropriate values.
 
 Then, follow the steps, copy the preformatted code and paste it in a unix shell. For more informations, refer to this link from Oracle to learn how to create an Oracle instance using the command line.
 
+## What next? 
+
+Dunno yet, but I'm thinking about these (smallish) features:
+
+* Allowing system tablespace size setup
+* Allowing the creation of more tablespaces with size _et al_ after instance setup
+
 ## Want to test this tool?
 
 Easy. Simply go to http://maxlambertini.github.io/orainsttool/  and check it out. Pretty it ain't basic it certainly is, creating an instance using command-line, certainly help it can ;-) 
