@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+	<head>
+		<title>Oracle Instance Builder</title>
+		<script src="knockout-3.3.0.js" type="text/javascript"></script>
+		<script src="oramodel-win.js" type="text/javascript"></script>
+		<style>
+			BODY,DIV,P,TD,TH, OL LI, UL LI {
+				font-family: Segoe UI, Lucida Grande, sans-serif;
+				font-size: 12pt;
+			}
+			
+			.pre_box {
+			    font-family: consolas, monaco, monospace;
+			    white-space: pre;				
+				font-size: 10pt;
+				background-color:#ffd;
+				border: 1px solid gray;
+				padding: 4px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Oracle Instance Script Generation</h1>
+		
+        <p>
+        This page is a quick tool to help DBA create a database instance on linux systems
+        when X11 -- and thus dbca -- is not available. This tools is <i>opinionated</i>, that
+        is it enforces a datafile tree which may or may not be of your liking. If you 
+        <i>don't</i> like it, just change directories generated in #3 and double-check the
+        path specified in CREATE DATABASE section (#5).
+        </p>
+        <p>
+        A note to the DBA: the DB created is in NOARCHIVELOG mode.
+        </p>
+
+        <h2>Instructions</h2>
+        <p>
+        Fill the input boxes with the appropriate values. Then, follow the steps, copy the preformatted code and paste
+        it in a unix shell. For more informations, refer to <a href="http://docs.oracle.com/cd/B28359_01/server.111/b28310/create003.htm#ADMIN11084">this link from Oracle</a> to learn how to create an Oracle instance using the command line.
+        </p>
+
+		<h3>Basic Instance Data</h3>
+		<table>
+			<tr>
+				<th>Oracle SID</th>
+				<td><input data-bind="value: ORACLE_SID" /></input></td>
+			</tr>
+			<tr>
+				<th>Oracle Base Path for files </th>
+				<td><input style="width:400px;" data-bind="value: ORACLE_BASE" /></input></td>
+			</tr>
+			<tr>
+				<th>Oracle Home</th>
+				<td><input style="width:400px;" data-bind="value: ORACLE_HOME" /></input></td>
+			</tr>
+			<tr>
+				<th>Sys and System password</th>
+				<td><input data-bind="value: ORACLE_SYS_PWD" /></input></td>
+			</tr>
+		</table>
+		
+
+		<h3>Redo log and control files</h3>
+		<table>
+			<tr>
+				<th>No. of Redo group</th>
+				<td><input data-bind="value: REDO_GROUP" /></input></td>
+			</tr>
+			<tr>
+				<th>Redo log size</th>
+				<td><input data-bind="value: REDO_SIZE" /></input></td>
+			</tr>
+			<tr>
+				<th>Redo multiplex</th>
+				<td><input data-bind="value: REDO_MULTIPLEX" /></input></td>
+			</tr>
+			<tr>
+				<th>Control file multiplex</th>
+				<td><input data-bind="value: CTL_MULTIPLEX" /></input></td>
+			</tr>
+		</table>
+		
+		<hr />
+
+		<h3>1. Setup environment variables</h3>
+		
+<div class="pre_box">
+set %ORACLE_HOME%=<span data-bind="text: ORACLE_HOME"></span>
+set %ORACLE_SID%=<span data-bind="text: ORACLE_SID"></span>
+set PATH=%PATH%;<span data-bind="text: ORACLE_ENV_PATH"></span>	
+	
+</div>
+					
+		<h3>2. Create password file and init.ora</h3>
+<div class="pre_box">
+REM create password file
+orapwd FILE=<span data-bind="text: ORACLE_DBS"></span>\orapw<span data-bind="text: ORACLE_SID"></span> password=<span data-bind="text: ORACLE_SYS_PWD"></span> entries=30 FORCE=Y
+
+
+REM create init<span data-bind="text: ORACLE_SID"></span>.ora
+
+(
+<span data-bind="text: initOra"></span>
+)  &gt; <span data-bind="text: ORACLE_DBS"></span>\init<span data-bind="text: ORACLE_SID"></span>.ora
+EOF	
+
+REM windows only:
+
+oradim -NEW -SID <span data-bind="text: ORACLE_SID"></span> -STARTMODE MANUAL -PFILE <span data-bind="text: ORACLE_DBS"></span>\init<span data-bind="text: ORACLE_SID"></span>.ora
+
+</div>
+
+	<h3>3. Create data directories</h3>
+<div class="pre_box">
+
+mkdir  <span data-bind="text: ROOT_DIR"></span>	
+mkdir  <span data-bind="text: ROOT_CTL"></span>	
+mkdir  <span data-bind="text: ROOT_DIAG"></span>	
+mkdir  <span data-bind="text: ROOT_ARC"></span>	
+mkdir  <span data-bind="text: ROOT_REDO"></span>	
+mkdir  <span data-bind="text: ROOT_FLASH"></span>
+mkdir  <span data-bind="text: ROOT_DATAFILES"></span>
+
+REM create paths for redo
+<span data-bind="foreach: ROOT_REDO_PATH()">
+mkdir  <span data-bind="text: redo_path"></span></span>
+
+REM create paths for ctl	
+<span data-bind="foreach: ROOT_CTL_PATH()">
+mkdir  <span data-bind="text: ctl_path"></span></span>
+	
+</div>	
+
+	<h3>4. Boot instance and create spfile</h3>
+	
+<div class="pre_box">
+
+( 
+echo connect / as sysdba
+echo create spfile from pfile='<span data-bind="text: ORACLE_DBS"></span>\init<span data-bind="text: ORACLE_SID"></span>.ora';
+echo startup nomount;
+echo exit;
+echo  
+) | sqlplus /nolog
+
+</div>	
+		
+	<h3>5. CREATE DATABASE!</h3>
+	
+<div class="pre_box">
+(
+echo connect / as sysdba
+echo 
+echo CREATE DATABASE <span data-bind="text: ORACLE_SID"></span>
+echo    USER SYS IDENTIFIED BY <span data-bind="text: ORACLE_SYS_PWD"></span>
+echo    USER SYSTEM IDENTIFIED BY <span data-bind="text: ORACLE_SYS_PWD"></span>
+echo    LOGFILE <span data-bind="text: createLog"></span>
+echo    MAXLOGFILES 20
+echo    MAXLOGMEMBERS 5
+echo    MAXLOGHISTORY 1
+echo    MAXDATAFILES 100
+echo    CHARACTER SET US7ASCII
+echo    NATIONAL CHARACTER SET AL16UTF16
+echo    EXTENT MANAGEMENT LOCAL
+echo    DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/system01.dbf' SIZE 325M REUSE
+echo    SYSAUX DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/sysaux' SIZE 325M REUSE
+echo    DEFAULT TABLESPACE users
+echo    DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/users01.dbf'
+echo       SIZE 500M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED
+echo    DEFAULT TEMPORARY TABLESPACE temp
+echo       TEMPFILE '<span data-bind="text: ROOT_DATAFILES"></span>/temp01.dbf'
+echo       SIZE 20M REUSE
+echo    UNDO TABLESPACE undotbs
+echo       DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/undotbs01.dbf'
+echo       SIZE 200M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+echo 	  
+echo    exit;
+) | sqlplus /nolog
+
+(
+echo connect / as sysdba
+echo 
+echo @?/rdbms/admin/catalog.sql
+echo @?/rdbms/admin/catproc.sql
+echo exit;
+) | sqlplus /nolog
+
+(
+echo connect system/<span data-bind="text: ORACLE_SYS_PWD"></span>
+echo 
+echo @?/sqlplus/admin/pupbld.sql
+echo 
+echo exit;
+) | sqlplus /nolog
+
+REM then, you can enable instance startup
+
+oradim -EDIT -SID <span data-bind="text: ORACLE_SID"></span> -STARTMODE AUTO -SRVCSTART SYSTEM -SPFILE
+
+</div>	
+		
+		
+		<p>
+			<button data-bind="click: dumpToConsole">Dump to console!</button>
+		</p>
+		
+		<script type="text/javascript">
+			ko.applyBindings(new OracleInstanceModelWim());
+		</script>
+	</body>
+</html>

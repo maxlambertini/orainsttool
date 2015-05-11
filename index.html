@@ -180,6 +180,12 @@ connect / as sysdba
 
 @?/rdbms/admin/catalog.sql
 @?/rdbms/admin/catproc.sql
+exit;
+
+
+sqlplus -s /nolog &lt;&lt; EOF
+connect system/<span data-bind="text: ORACLE_SYS_PWD"></span>
+
 @?/sqlplus/admin/pupbld.sql
 
 exit;
