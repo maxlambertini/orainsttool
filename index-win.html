@@ -121,11 +121,11 @@ mkdir  <span data-bind="text: ROOT_REDO"></span>
 mkdir  <span data-bind="text: ROOT_FLASH"></span>
 mkdir  <span data-bind="text: ROOT_DATAFILES"></span>
 
-# create paths for redo
+REM create paths for redo
 <span data-bind="foreach: ROOT_REDO_PATH()">
 mkdir  <span data-bind="text: redo_path"></span></span>
 
-# create paths for ctl	
+REM create paths for ctl	
 <span data-bind="foreach: ROOT_CTL_PATH()">
 mkdir  <span data-bind="text: ctl_path"></span></span>
 	
@@ -195,7 +195,7 @@ echo exit;
 
 REM then, you can enable instance startup
 
-oradim -EDIT -SID <span data-bind="text: ORACLE_SID"> -STARTMODE AUTO -SRVCSTART SYSTEM -SPFILE
+oradim -EDIT -SID <span data-bind="text: ORACLE_SID"></span> -STARTMODE AUTO -SRVCSTART SYSTEM -SPFILE
 
 </div>	
 		
