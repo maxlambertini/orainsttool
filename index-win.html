@@ -162,16 +162,16 @@ echo    MAXDATAFILES 100
 echo    CHARACTER SET US7ASCII
 echo    NATIONAL CHARACTER SET AL16UTF16
 echo    EXTENT MANAGEMENT LOCAL
-echo    DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/system01.dbf' SIZE 325M REUSE
-echo    SYSAUX DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/sysaux' SIZE 325M REUSE
+echo    DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>\system01.dbf' SIZE 325M REUSE
+echo    SYSAUX DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>\sysaux' SIZE 325M REUSE
 echo    DEFAULT TABLESPACE users
-echo    DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/users01.dbf'
+echo    DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>\users01.dbf'
 echo       SIZE 500M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED
 echo    DEFAULT TEMPORARY TABLESPACE temp
-echo       TEMPFILE '<span data-bind="text: ROOT_DATAFILES"></span>/temp01.dbf'
+echo       TEMPFILE '<span data-bind="text: ROOT_DATAFILES"></span>\temp01.dbf'
 echo       SIZE 20M REUSE
 echo    UNDO TABLESPACE undotbs
-echo       DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>/undotbs01.dbf'
+echo       DATAFILE '<span data-bind="text: ROOT_DATAFILES"></span>\undotbs01.dbf'
 echo       SIZE 200M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
 echo 	  
 echo    exit;
